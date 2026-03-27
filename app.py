@@ -32,27 +32,3 @@ def create_app() -> Flask:
 if __name__ == "__main__":
     app = create_app()
     app.run(debug=Config.DEBUG, host="0.0.0.0", port=5000)
-```
-
----
-
-## `requirements.txt`
-```
-flask>=3.0.0
-python-dotenv>=1.0.0
-```
-
-## `.env`
-```
-SECRET_KEY=troque-essa-chave
-DEBUG=true
-WEBHOOK_SECRET=
-```
-
-## `.gitignore`
-```
-venv/
-__pycache__/
-*.pyc
-.env
-data/*.json
