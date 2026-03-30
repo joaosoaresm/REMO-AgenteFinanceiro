@@ -9,6 +9,7 @@ from config import Config
 def create_app() -> Flask:
     app = Flask(__name__)
     app.config.from_object(Config)
+    app.config["JSON_ENSURE_ASCII"] = False #permite caracteres diferentes de ASCII
 
     # Blueprints
     from routes.webhook import bp as webhook_bp
