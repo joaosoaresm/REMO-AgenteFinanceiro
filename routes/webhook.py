@@ -4,7 +4,7 @@ from services.message_interpreter import interpretar
 from services.transaction_service import adicionar_transacao, calcular_saldo
 from services.summary_service     import gerar_resumo
 from services.tips_service        import gerar_dicas
-from services.groq_service        import perguntar_ia, analisar_financas
+from services.gemini_service      import perguntar_ia, analisar_financas
 
 bp = Blueprint("webhook", __name__, url_prefix="/webhook")
 
@@ -25,7 +25,7 @@ def receber_mensagem():
     # Interpreta como transação financeira
     resultado = interpretar(mensagem)
     if not resultado:
-        # Não entendeu como transação — pergunta para a IA
+        # Não entendeu como transação — pergunta para o Gemini
         resposta_ia = perguntar_ia(mensagem)
         return jsonify({"resposta": resposta_ia})
 
@@ -45,9 +45,9 @@ def receber_mensagem():
 
 # ── helpers privados ──────────────────────────────────────────────────────────
 
-_COMANDOS_RESUMO  = {"resumo", "extrato", "saldo", "quanto tenho"}
-_COMANDOS_DICAS   = {"dicas", "dica", "conselho", "me ajuda"}
-_COMANDOS_IA      = {"analisar", "análise", "analisa", "o que acha"}
+_COMANDOS_RESUMO = {"resumo", "extrato", "saldo", "quanto tenho"}
+_COMANDOS_DICAS  = {"dicas", "dica", "conselho", "me ajuda"}
+_COMANDOS_IA     = {"analisar", "análise", "analisa", "o que acha"}
 
 
 def _verificar_comando(mensagem: str) -> str | None:
@@ -60,7 +60,7 @@ def _verificar_comando(mensagem: str) -> str | None:
         return gerar_dicas()
 
     if msg in _COMANDOS_IA:
-        resumo   = calcular_saldo()
+        resumo = calcular_saldo()
         return analisar_financas(resumo)
 
     return None

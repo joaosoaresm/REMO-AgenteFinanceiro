@@ -1,16 +1,19 @@
-# services/groq_service.py
-# Integração com a API da Groq.
-# Envia contexto financeiro e retorna resposta inteligente da IA.
+# services/gemini_service.py
+# Integração com a API do Gemini (Google).
+# Envia contexto financeiro e retorna resposta inteligente.
 
 import requests
 from config import Config
 
-# URL oficial da API Groq
-_GROQ_URL = "https://api.groq.com/openai/v1/chat/completions"
+# URL da API Gemini
+_GEMINI_URL = (
+    "https://generativelanguage.googleapis.com/v1beta/models/"
+    "{model}:generateContent?key={key}"
+)
 
-# Personalidade e contexto do REMO
+# Personalidade do REMO
 _SYSTEM_PROMPT = """
-Você é o REMO, um assistente financeiro pessoal inteligente e direto.
+Você é o REMO (Real Money), um assistente financeiro pessoal inteligente.
 Seu papel é ajudar o usuário a controlar suas finanças pessoais.
 
 Regras:
@@ -25,23 +28,22 @@ Regras:
 
 def perguntar_ia(mensagem: str, contexto: str = "") -> str:
     """
-    Envia mensagem para o Groq e retorna resposta da IA.
+    Envia mensagem para o Gemini e retorna resposta da IA.
 
     Args:
         mensagem: Pergunta ou texto do usuário
         contexto: Dados financeiros para enriquecer a resposta (opcional)
 
     Returns:
-        Resposta da IA como string. Em caso de erro, retorna mensagem padrão.
+        Resposta da IA como string.
     """
-    if not Config.GROQ_API_KEY:
-        return "Chave da API Groq não configurada."
+    if not Config.GEMINI_API_KEY:
+        return "Chave da API Gemini não configurada."
 
     prompt = _montar_prompt(mensagem, contexto)
 
     try:
-        resposta = _chamar_api(prompt)
-        return resposta
+        return _chamar_api(prompt)
     except requests.exceptions.Timeout:
         return "A IA demorou para responder. Tente novamente."
     except requests.exceptions.ConnectionError:
@@ -52,7 +54,7 @@ def perguntar_ia(mensagem: str, contexto: str = "") -> str:
 
 def analisar_financas(resumo: dict) -> str:
     """
-    Recebe um resumo financeiro e pede análise para a IA.
+    Recebe um resumo financeiro e pede análise para o Gemini.
 
     Args:
         resumo: Dicionário com ganhos, gastos e saldo
@@ -66,7 +68,9 @@ def analisar_financas(resumo: dict) -> str:
         f"- Gastos: R$ {resumo.get('gastos', 0):.2f}\n"
         f"- Saldo:  R$ {resumo.get('saldo', 0):.2f}"
     )
-    return perguntar_ia("Analise minha situação financeira e me dê dicas.", contexto)
+    return perguntar_ia(
+        "Analise minha situação financeira e me dê dicas práticas.", contexto
+    )
 
 
 # ── helpers privados ──────────────────────────────────────────────────────────
@@ -74,34 +78,33 @@ def analisar_financas(resumo: dict) -> str:
 def _montar_prompt(mensagem: str, contexto: str) -> str:
     """Monta o prompt completo com contexto financeiro."""
     if contexto:
-        return f"{contexto}\n\nPergunta do usuário: {mensagem}"
-    return mensagem
+        return f"{_SYSTEM_PROMPT}\n\n{contexto}\n\nPergunta: {mensagem}"
+    return f"{_SYSTEM_PROMPT}\n\nPergunta: {mensagem}"
 
 
 def _chamar_api(prompt: str) -> str:
-    """Faz a chamada HTTP para a API do Groq."""
-    headers = {
-        "Authorization": f"Bearer {Config.GROQ_API_KEY}",
-        "Content-Type":  "application/json",
-    }
+    """Faz a chamada HTTP para a API do Gemini."""
+    url = _GEMINI_URL.format(
+        model=Config.GEMINI_MODEL,
+        key=Config.GEMINI_API_KEY,
+    )
 
     body = {
-        "model": Config.GROQ_MODEL,
-        "messages": [
-            {"role": "system",  "content": _SYSTEM_PROMPT},
-            {"role": "user",    "content": prompt},
+        "contents": [
+            {
+                "parts": [
+                    {"text": prompt}
+                ]
+            }
         ],
-        "temperature": 0.7,
-        "max_tokens":  500,
+        "generationConfig": {
+            "temperature":     0.7,
+            "maxOutputTokens": 500,
+        }
     }
 
-    response = requests.post(
-        _GROQ_URL,
-        headers=headers,
-        json=body,
-        timeout=15,
-    )
+    response = requests.post(url, json=body, timeout=15)
     response.raise_for_status()
 
     data = response.json()
-    return data["choices"][0]["message"]["content"].strip()
+    return data["candidates"][0]["content"]["parts"][0]["text"].strip()
