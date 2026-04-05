@@ -1,7 +1,6 @@
 # app.py
-# Entry point da aplicação. Usa factory pattern para
-# facilitar testes e múltiplos ambientes.
-
+import os
+import threading
 from flask import Flask, jsonify
 from config import Config
 
@@ -9,9 +8,8 @@ from config import Config
 def create_app() -> Flask:
     app = Flask(__name__)
     app.config.from_object(Config)
-    app.config["JSON_ENSURE_ASCII"] = False #permite caracteres diferentes de ASCII
+    app.json.ensure_ascii = False
 
-    # Blueprints
     from routes.webhook import bp as webhook_bp
     app.register_blueprint(webhook_bp)
 
@@ -30,8 +28,21 @@ def create_app() -> Flask:
     return app
 
 
+def start_telegram_bot():
+    """Inicia o bot do Telegram em uma thread separada."""
+    try:
+        from telegram_bot import main
+        main()
+    except Exception as e:
+        print(f"Erro no bot do Telegram: {e}")
+
+
 if __name__ == "__main__":
-    import os
     port = int(os.getenv("PORT", 5000))
     app = create_app()
+
+    # Inicia o bot do Telegram em background
+    bot_thread = threading.Thread(target=start_telegram_bot, daemon=True)
+    bot_thread.start()
+
     app.run(debug=False, host="0.0.0.0", port=port)
