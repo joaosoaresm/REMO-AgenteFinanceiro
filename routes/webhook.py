@@ -48,8 +48,9 @@ def receber_mensagem():
 _COMANDOS_RESUMO = {"resumo", "extrato", "saldo", "quanto tenho"}
 _COMANDOS_DICAS  = {"dicas", "dica", "conselho", "me ajuda"}
 _COMANDOS_IA     = {"analisar", "análise", "analisa", "o que acha"}
+_COMANDOS_RESET = {"zerar", "resetar", "novo mês", "novo mes", "limpar"}
 
-
+# Atualiza a função _verificar_comando
 def _verificar_comando(mensagem: str) -> str | None:
     msg = mensagem.lower().strip()
 
@@ -62,6 +63,11 @@ def _verificar_comando(mensagem: str) -> str | None:
     if msg in _COMANDOS_IA:
         resumo = calcular_saldo()
         return analisar_financas(resumo)
+
+    if msg in _COMANDOS_RESET:
+        from services.transaction_service import zerar_transacoes
+        zerar_transacoes()
+        return "✅ Transações zeradas! Começando o novo mês do zero."
 
     return None
 

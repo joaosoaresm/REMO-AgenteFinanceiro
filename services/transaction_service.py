@@ -85,3 +85,11 @@ def _inferir_categoria(descricao: str) -> str:
         if any(p in desc for p in palavras):
             return categoria
     return "outros"
+
+def zerar_transacoes() -> dict:
+    """
+    Apaga todas as transações do arquivo JSON.
+    Usado para resetar no início de cada mês.
+    """
+    db.save_all(Config.TRANSACTIONS_FILE, [])
+    return {"mensagem": "Transações zeradas com sucesso!"}
