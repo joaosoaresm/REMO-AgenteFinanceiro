@@ -82,9 +82,10 @@ def _extrair_descricao(msg: str, valor: float) -> str:
     Remove palavras-chave de tipo, o valor e preposições,
     deixando apenas a descrição limpa.
     """
-    # Remove o valor da string
-    valor_str = str(valor).replace(".", "[.,]?")
-    texto = re.sub(rf"R?\$?\s*{valor_str}\d*", "", msg, flags=re.I)
+    texto = msg
+
+    # Remove o valor monetário (ex: 50, 50.00, R$50)
+    texto = re.sub(r"R?\$?\s*\d+(?:[.,]\d{1,2})?", "", texto, flags=re.I)
 
     # Remove palavras de tipo
     texto = re.sub(_GASTO_KEYWORDS, "", texto, flags=re.I)
@@ -93,7 +94,8 @@ def _extrair_descricao(msg: str, valor: float) -> str:
     # Remove preposições e artigos soltos
     texto = _PREPOSICOES.sub("", texto)
 
-    # Limpa espaços extras
+    # Limpa espaços extras e pontuação solta
+    texto = re.sub(r"[^\w\s]", "", texto)
     descricao = " ".join(texto.split()).strip()
 
     return descricao if descricao else "sem descrição"
