@@ -104,6 +104,15 @@ def _chamar_api(prompt: str) -> str:
     }
 
     response = requests.post(url, json=body, timeout=15)
+
+    # Trata erros específicos com mensagens claras
+    if response.status_code == 429:
+        return "Limite de requisições atingido. Aguarde 1 minuto e tente novamente."
+    if response.status_code == 401:
+        return "Chave da API inválida. Verifique o arquivo .env"
+    if response.status_code == 404:
+        return "Modelo não encontrado. Verifique o GEMINI_MODEL no config.py"
+
     response.raise_for_status()
 
     data = response.json()
