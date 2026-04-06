@@ -38,7 +38,7 @@ def start_telegram_bot():
 
 
 if __name__ == "__main__":
-    port = int(os.getenv("PORT", 5000))
+    port = int(os.getenv("PORT", 10000))
     app = create_app()
 
     # Inicia o bot do Telegram em background
