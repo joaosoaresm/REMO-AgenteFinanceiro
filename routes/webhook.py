@@ -1,7 +1,7 @@
 # routes/webhook.py
 from flask import Blueprint, request, jsonify
 from services.message_interpreter import interpretar
-from services.transaction_service import adicionar_transacao, calcular_saldo
+from services.transaction_service import adicionar_transacao, calcular_saldo, deletar_transacao
 from services.summary_service     import gerar_resumo
 from services.tips_service        import gerar_dicas
 from services.gemini_service      import perguntar_ia, analisar_financas
