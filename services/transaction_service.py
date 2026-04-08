@@ -88,3 +88,7 @@ def zerar_transacoes() -> dict:
     """
     db.save_all(Config.TRANSACTIONS_FILE, [])
     return {"mensagem": "Transações zeradas com sucesso!"}
+
+def deletar_transacao(transaction_id: str) -> bool:
+    """Remove uma transação pelo ID."""
+    return db.delete(Config.TRANSACTIONS_FILE, transaction_id)

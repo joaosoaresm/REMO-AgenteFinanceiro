@@ -89,11 +89,9 @@ from services.transaction_service import (
 )
 
 @bp.delete("/api/transacoes/<string:transaction_id>")
-def deletar_transacao(transaction_id: str):
+def deletar_transacao_route(transaction_id: str):
     """DELETE /api/transacoes/<id>"""
-    from utils import json_storage as db
-    from config import Config
-    removido = db.delete(Config.TRANSACTIONS_FILE, transaction_id)
+    removido = deletar_transacao(transaction_id)
     if not removido:
         return jsonify({"erro": "Transação não encontrada"}), 404
     return jsonify({"mensagem": "Transação removida com sucesso!"})
