@@ -83,3 +83,17 @@ def _formatar_confirmacao(transacao: dict) -> str:
         f"Descrição: {transacao['descricao'].capitalize()}\n"
         f"Categoria: {transacao.get('categoria', 'outros').capitalize()}"
     )
+
+from services.transaction_service import (
+    adicionar_transacao, calcular_saldo, listar_transacoes, delete
+)
+
+@bp.delete("/api/transacoes/<string:transaction_id>")
+def deletar_transacao(transaction_id: str):
+    """DELETE /api/transacoes/<id>"""
+    from utils import json_storage as db
+    from config import Config
+    removido = db.delete(Config.TRANSACTIONS_FILE, transaction_id)
+    if not removido:
+        return jsonify({"erro": "Transação não encontrada"}), 404
+    return jsonify({"mensagem": "Transação removida com sucesso!"})
