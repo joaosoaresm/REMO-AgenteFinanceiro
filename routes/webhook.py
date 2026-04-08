@@ -85,7 +85,7 @@ def _formatar_confirmacao(transacao: dict) -> str:
     )
 
 from services.transaction_service import (
-    adicionar_transacao, calcular_saldo, listar_transacoes, delete
+    adicionar_transacao, calcular_saldo, listar_transacoes, deletar_transacao, zerar_transacoes
 )
 
 @bp.delete("/api/transacoes/<string:transaction_id>")
