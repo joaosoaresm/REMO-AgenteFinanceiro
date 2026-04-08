@@ -8,19 +8,14 @@ from utils import json_storage as db
 
 
 # ── escrita ───────────────────────────────────────────────────────────────────
-
-def adicionar_transacao(tipo: str, valor: float, descricao: str) -> dict:
-    """
-    Cria e persiste uma nova transação.
-    Raises ValueError se tipo for inválido ou valor <= 0.
-    """
+def adicionar_transacao(tipo: str, valor: float, descricao: str, categoria: str = None) -> dict:
     _validar(tipo, valor)
 
     transacao = {
         "tipo":      tipo,
         "valor":     valor,
         "descricao": descricao.strip(),
-        "categoria": _inferir_categoria(descricao),
+        "categoria": categoria or _inferir_categoria(descricao),
         "data":      date.today().isoformat(),
     }
     return db.insert(Config.TRANSACTIONS_FILE, transacao)

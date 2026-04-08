@@ -34,6 +34,7 @@ def receber_mensagem():
             tipo      = resultado["tipo"],
             valor     = resultado["valor"],
             descricao = resultado["descricao"],
+            categoria = resultado.get("categoria"),
         )
         return jsonify({
             "resposta":  _formatar_confirmacao(transacao),

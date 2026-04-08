@@ -10,6 +10,12 @@ _GASTO_KEYWORDS = (
     r"debit(ei|ou)|tirei|perdi"
 )
 
+# Palavras que indicam INVESTIMENTO/RESERVA
+_INVESTIMENTO_KEYWORDS = (
+    r"guardei|investi|reservei|pousei|apliquei|"
+    r"guard(ei|ou)|invest(i|iu)|reserv(ei|ou)"
+)
+
 # Palavras que indicam GANHO
 _GANHO_KEYWORDS = (
     r"ganhei|recebi|entrou|renda|salário|freela|"
@@ -27,16 +33,6 @@ _PREPOSICOES = re.compile(
 
 
 def interpretar(mensagem: str) -> dict | None:
-    """
-    Tenta extrair tipo, valor e descrição de uma frase.
-    Retorna None se não conseguir interpretar.
-
-    Exemplos aceitos:
-        "gastei 20 no lanche"        → gasto, 20.0,  "lanche"
-        "ganhei 500 freelando"       → ganho, 500.0, "freelando"
-        "paguei R$150,00 no mercado" → gasto, 150.0, "mercado"
-        "recebi 1200 de salário"     → ganho, 1200.0,"salário"
-    """
     msg = mensagem.strip().lower()
 
     tipo = _detectar_tipo(msg)
@@ -48,11 +44,13 @@ def interpretar(mensagem: str) -> dict | None:
         return None
 
     descricao = _extrair_descricao(msg, valor)
+    categoria = _detectar_categoria_especial(msg)
 
     return {
         "tipo":      tipo,
         "valor":     valor,
         "descricao": descricao,
+        "categoria": categoria,
     }
 
 
@@ -63,8 +61,17 @@ def _detectar_tipo(msg: str) -> str | None:
         return "gasto"
     if re.search(_GANHO_KEYWORDS, msg, re.I):
         return "ganho"
+    if re.search(_INVESTIMENTO_KEYWORDS, msg, re.I):
+        return "gasto"  # desconta do saldo como saída
     return None
 
+def _detectar_categoria_especial(msg: str) -> str | None:
+    """Detecta se a mensagem é um investimento ou reserva."""
+    if re.search(_INVESTIMENTO_KEYWORDS, msg, re.I):
+        if any(p in msg for p in ["reserv", "guard", "poup"]):
+            return "reserva"
+        return "investimento"
+    return None
 
 def _extrair_valor(msg: str) -> float | None:
     match = re.search(_VALOR_PATTERN, msg, re.I)
