@@ -8,7 +8,7 @@ load_dotenv()
 
 TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN", "")
 API_URL        = os.getenv("API_URL", "https://remo-agentefinanceiro.onrender.com/webhook/mensagem")
-DELETE_URL     = os.getenv("API_URL", "").replace("/webhook/mensagem", "/api/transacoes")
+DELETE_URL = "https://remo-agentefinanceiro.onrender.com/webhook/deletar"
 TELEGRAM_API   = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}"
 
 USUARIOS_AUTORIZADOS = {6075543761}

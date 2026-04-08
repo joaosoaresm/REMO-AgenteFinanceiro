@@ -88,7 +88,7 @@ from services.transaction_service import (
     adicionar_transacao, calcular_saldo, listar_transacoes, deletar_transacao, zerar_transacoes
 )
 
-@bp.delete("/api/transacoes/<string:transaction_id>")
+@bp.delete("/deletar/<string:transaction_id>")
 def deletar_transacao_route(transaction_id: str):
     """DELETE /api/transacoes/<id>"""
     removido = deletar_transacao(transaction_id)
